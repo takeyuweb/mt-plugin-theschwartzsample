@@ -17,16 +17,19 @@ use MT::Util;
 
 package main;
 
-my $help            = 0;
+my $daemon          = 0;
 my $verbose         = 0;
 my $scoreboard;
 my $randomize_jobs  = 0;
+my $sleep           = 5;
 
 require Getopt::Long;
 Getopt::Long::GetOptions(
-    "scoreboard=s" => \$scoreboard,
-    "randomly"     => \$randomize_jobs,
-    "verbose"      => \$verbose,
+    "daemon"        => \$daemon,
+    "scoreboard=s"  => \$scoreboard,
+    "randomly"      => \$randomize_jobs,
+    "verbose"       => \$verbose,
+    "sleep=i"       => \$sleep,
 );
 
 my $mt = new MT or die MT->errstr;
@@ -53,6 +56,10 @@ if ( ( my $error = $@ ) && $verbose ) {
 
 require TheSchwartzSample::Worker;
 $client->can_do( 'TheSchwartzSample::Worker' );
-$client->work_once();
+if ( $daemon ) {
+    $client->work( $sleep );
+} else {
+    $client->work_once();
+}
 
 1;
